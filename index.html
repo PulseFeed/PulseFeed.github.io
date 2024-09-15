@@ -189,6 +189,107 @@
             text-decoration: underline;
         }
 
+        .donate-button {
+            display: flex;
+            align-items: center;
+            background-color: var(--primary-color-dark);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .donate-button:hover {
+            background-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .donate-button:active {
+            transform: scale(1);
+        }
+
+        .donate-button i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #333;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 90%;
+            width: 500px;
+            text-align: center;
+            position: relative;
+            color: #fff;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+        }
+
+        .modal-content img {
+            margin: 0 auto;
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .modal-content code {
+            display: block;
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            color: #0f0;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+
+        .modal-content button {
+            background-color: var(--primary-color-dark);
+            border: none;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: var(--primary-color);
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #fff;
+        }
+
         @media (max-width: 768px) {
             header h1 {
                 font-size: 2.5em;
@@ -201,22 +302,21 @@
 
             .filter-select, .search-container {
                 width: 100%;
+                margin-bottom: 10px;
             }
         }
     </style>
 </head>
 <body>
-
     <header>
         <h1>PulseFeed</h1>
-        <p>Real-time News, Smarter & Fresher Every Moment</p>
+        <p>Real-time News, Smarter & Fresher</p>
     </header>
 
     <div class="filter-container">
         <div class="filter-select">
             <select id="source-select">
-                <option value="all" selected>All</option>
-                <option value="Al Jazeera">Al Jazeera</option>
+                <option value="All">All Sources</option>
                 <option value="Ars Technica">Ars Technica</option>
                 <option value="BBC">BBC</option>
                 <option value="Deutsche Welle (DW)">Deutsche Welle (DW)</option>
@@ -248,10 +348,53 @@
     <div class="footer">
         <p>© 2024 PulseFeed. Always in Sync with Global News.</p>
         <p><a href="https://github.com/PulseFeed/PulseFeed.github.io">Open-source project</a> powered by the community.</p>
+        <a class="donate-button" id="donate-button">
+            <i class="fas fa-donate"></i> Donate
+        </a>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="donate-modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal">&times;</span>
+            <h2>Support Us</h2>
+            <p>Your support helps us keep this service free and ad-free!</p>
+            <p>Donate using Bitcoin:</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bc1q4dxn8v5gk3ywmsadgrl3jl400e5g5r5xv522ku" alt="Bitcoin QR Code">
+            <code id="bitcoin-address">bc1q4dxn8v5gk3ywmsadgrl3jl400e5g5r5xv522ku</code>
+            <button id="copy-address-button">Copy Address</button>
+        </div>
     </div>
 
     <script>
-        const newsSources = [
+        // Modal functionality
+        const donateButton = document.getElementById('donate-button');
+        const donateModal = document.getElementById('donate-modal');
+        const closeModal = document.getElementById('close-modal');
+
+        donateButton.onclick = function() {
+            donateModal.style.display = 'flex';
+        }
+
+        closeModal.onclick = function() {
+            donateModal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target === donateModal) {
+                donateModal.style.display = 'none';
+            }
+        }
+
+        document.getElementById('copy-address-button').onclick = function() {
+            const address = document.getElementById('bitcoin-address').innerText;
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Bitcoin address copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy address: ', err);
+            });
+        }
+    const newsSources = [
             { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'Al Jazeera' },
             { url: 'https://arstechnica.com/feed/', name: 'Ars Technica' },
             { url: 'http://feeds.bbci.co.uk/news/rss.xml', name: 'BBC' },
@@ -387,6 +530,6 @@
         searchInput.addEventListener('input', handleSearchInput);
         loadMoreBtn.addEventListener('click', handleLoadMore);
     </script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 </body>
 </html>
