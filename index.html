@@ -366,170 +366,171 @@
         </div>
     </div>
 
-    <script>
-        // Modal functionality
-        const donateButton = document.getElementById('donate-button');
-        const donateModal = document.getElementById('donate-modal');
-        const closeModal = document.getElementById('close-modal');
+<script>
+    // Modal functionality
+    const donateButton = document.getElementById('donate-button');
+    const donateModal = document.getElementById('donate-modal');
+    const closeModal = document.getElementById('close-modal');
 
-        donateButton.onclick = function() {
-            donateModal.style.display = 'flex';
-        }
+    donateButton.onclick = function() {
+        donateModal.style.display = 'flex';
+    }
 
-        closeModal.onclick = function() {
+    closeModal.onclick = function() {
+        donateModal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target === donateModal) {
             donateModal.style.display = 'none';
         }
+    }
 
-        window.onclick = function(event) {
-            if (event.target === donateModal) {
-                donateModal.style.display = 'none';
-            }
-        }
-
-        document.getElementById('copy-address-button').onclick = function() {
-            const address = document.getElementById('bitcoin-address').innerText;
-            navigator.clipboard.writeText(address).then(() => {
-                alert('Bitcoin address copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy address: ', err);
-            });
-        }
-    const newsSources = [
-            { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'Al Jazeera' },
-            { url: 'https://arstechnica.com/feed/', name: 'Ars Technica' },
-            { url: 'http://feeds.bbci.co.uk/news/rss.xml', name: 'BBC' },
-            { url: 'https://rss.dw.com/xml/rss-en-all', name: 'Deutsche Welle (DW)' },
-            { url: 'https://news.ycombinator.com/rss', name: 'Hacker News' },
-            { url: 'https://www.technologyreview.com/feed/', name: 'MIT Technology Review' },
-            { url: 'https://feeds.npr.org/1001/rss.xml', name: 'NPR' },
-            { url: 'https://www.popsci.com/rss.xml', name: 'Popular Science' },
-            { url: 'https://qz.com/feed', name: 'Quartz' },
-            { url: 'https://www.reddit.com/r/news/.rss', name: 'Reddit' },
-            { url: 'https://techcrunch.com/feed/', name: 'TechCrunch' },
-            { url: 'https://www.theatlantic.com/feed/all/', name: 'The Atlantic' },
-            { url: 'https://www.theguardian.com/world/rss', name: 'The Guardian' },
-            { url: 'https://thehackernews.com/feeds/posts/default', name: 'The Hacker News' },
-            { url: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', name: 'The New York Times' },
-            { url: 'https://www.theverge.com/rss/index.xml', name: 'The Verge' },
-            { url: 'https://feeds.washingtonpost.com/rss/world', name: 'The Washington Post' },
-            { url: 'https://www.wired.com/feed/rss', name: 'Wired' }
-        ];
-
-        const proxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
-        let selectedSource = 'all';
-        let currentPage = 0;
-        const pageSize = 8;
-        let searchQuery = '';
-        let displayedNews = new Set();
-
-        const newsContainer = document.getElementById('news-container');
-        const lastUpdateInfo = document.getElementById('last-update-info');
-        const searchInput = document.getElementById('search-input');
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const sourceSelect = document.getElementById('source-select');
-
-        function formatDate(date) {
-            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-        }
-
-        async function fetchNewsFromSource(source) {
-            try {
-                const response = await fetch(proxy + encodeURIComponent(source.url));
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                return data.items.map(item => ({
-                    title: item.title,
-                    link: item.link,
-                    description: item.description || '',
-                    pubDate: new Date(item.pubDate),
-                    imageUrl: item.enclosure ? item.enclosure.link : '',
-                    sourceName: source.name
-                }));
-            } catch (error) {
-                console.error('Error fetching data from:', source.name, error);
-                return [];
-            }
-        }
-
-        async function loadNews(append = false) {
-            try {
-                const filteredSources = selectedSource === 'all'
-                    ? newsSources
-                    : newsSources.filter(source => source.name === selectedSource);
-
-                const allNewsItems = await Promise.all(filteredSources.map(fetchNewsFromSource));
-                const allItems = allNewsItems.flat();
-
-                const filteredItems = allItems.filter(item =>
-                    item.title.toLowerCase().includes(searchQuery) || item.description.toLowerCase().includes(searchQuery)
-                ).sort((a, b) => b.pubDate - a.pubDate);
-
-                const paginatedItems = filteredItems.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-
-                if (!append) {
-                    newsContainer.innerHTML = '';
-                    displayedNews.clear();
-                }
-
-                const fragment = document.createDocumentFragment();
-
-                paginatedItems.forEach(item => {
-                    if (displayedNews.has(item.link)) return;
-                    displayedNews.add(item.link);
-
-                    const div = document.createElement('div');
-                    div.classList.add('news-item');
-                    div.innerHTML = `
-                        ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.title}">` : ''}
-                        <div class="content">
-                            <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-                            <p>${item.description}</p>
-                            <p><small><strong>${item.sourceName}</strong> - ${formatDate(item.pubDate)}</small></p>
-                        </div>
-                    `;
-                    fragment.appendChild(div);
-                });
-
-                newsContainer.appendChild(fragment);
-
-                loadMoreBtn.style.display = filteredItems.length > (currentPage + 1) * pageSize ? 'block' : 'none';
-                lastUpdateInfo.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-            } catch (error) {
-                console.error('Error loading RSS feeds:', error);
-                newsContainer.innerHTML = '<p>Error loading news. Please try again later.</p>';
-            }
-        }
-
-        function handleSourceChange() {
-            selectedSource = sourceSelect.value;
-            currentPage = 0;
-            loadNews();
-        }
-
-        function handleSearchInput() {
-            searchQuery = searchInput.value.toLowerCase();
-            currentPage = 0;
-            loadNews();
-        }
-
-        function handleLoadMore() {
-            currentPage += 1;
-            loadNews(true);
-        }
-
-        // Load news on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadNews();
-            // Set an interval to refresh news every 5 minutes
-            setInterval(() => {
-                loadNews(true);
-            }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    document.getElementById('copy-address-button').onclick = function() {
+        const address = document.getElementById('bitcoin-address').innerText;
+        navigator.clipboard.writeText(address).then(() => {
+            alert('Bitcoin address copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy address: ', err);
         });
+    }
 
-        sourceSelect.addEventListener('change', handleSourceChange);
-        searchInput.addEventListener('input', handleSearchInput);
-        loadMoreBtn.addEventListener('click', handleLoadMore);
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    const newsSources = [
+        { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'Al Jazeera' },
+        { url: 'https://arstechnica.com/feed/', name: 'Ars Technica' },
+        { url: 'http://feeds.bbci.co.uk/news/rss.xml', name: 'BBC' },
+        { url: 'https://rss.dw.com/xml/rss-en-all', name: 'Deutsche Welle (DW)' },
+        { url: 'https://news.ycombinator.com/rss', name: 'Hacker News' },
+        { url: 'https://www.technologyreview.com/feed/', name: 'MIT Technology Review' },
+        { url: 'https://feeds.npr.org/1001/rss.xml', name: 'NPR' },
+        { url: 'https://www.popsci.com/rss.xml', name: 'Popular Science' },
+        { url: 'https://qz.com/feed', name: 'Quartz' },
+        { url: 'https://www.reddit.com/r/news/.rss', name: 'Reddit' },
+        { url: 'https://techcrunch.com/feed/', name: 'TechCrunch' },
+        { url: 'https://www.theatlantic.com/feed/all/', name: 'The Atlantic' },
+        { url: 'https://www.theguardian.com/world/rss', name: 'The Guardian' },
+        { url: 'https://thehackernews.com/feeds/posts/default', name: 'The Hacker News' },
+        { url: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', name: 'The New York Times' },
+        { url: 'https://www.theverge.com/rss/index.xml', name: 'The Verge' },
+        { url: 'https://feeds.washingtonpost.com/rss/world', name: 'The Washington Post' },
+        { url: 'https://www.wired.com/feed/rss', name: 'Wired' }
+    ];
+
+    const proxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
+    let selectedSource = 'all';
+    let currentPage = 0;
+    const pageSize = 8;
+    let searchQuery = '';
+    let displayedNews = new Set();
+
+    const newsContainer = document.getElementById('news-container');
+    const lastUpdateInfo = document.getElementById('last-update-info');
+    const searchInput = document.getElementById('search-input');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const sourceSelect = document.getElementById('source-select');
+
+    function formatDate(date) {
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+    }
+
+    async function fetchNewsFromSource(source) {
+        try {
+            const response = await fetch(proxy + encodeURIComponent(source.url));
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data.items.map(item => ({
+                title: item.title,
+                link: item.link,
+                description: item.description || '',
+                pubDate: new Date(item.pubDate),
+                imageUrl: item.enclosure ? item.enclosure.link : '',
+                sourceName: source.name
+            }));
+        } catch (error) {
+            console.error('Error fetching data from:', source.name, error);
+            return [];
+        }
+    }
+
+    async function loadNews(append = false) {
+        try {
+            const filteredSources = selectedSource === 'all'
+                ? newsSources
+                : newsSources.filter(source => source.name === selectedSource);
+
+            const allNewsItems = await Promise.all(filteredSources.map(fetchNewsFromSource));
+            const allItems = allNewsItems.flat();
+
+            const filteredItems = allItems.filter(item =>
+                item.title.toLowerCase().includes(searchQuery) || item.description.toLowerCase().includes(searchQuery)
+            ).sort((a, b) => b.pubDate - a.pubDate);
+
+            const paginatedItems = filteredItems.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+
+            if (!append) {
+                newsContainer.innerHTML = '';
+                displayedNews.clear();
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            paginatedItems.forEach(item => {
+                if (displayedNews.has(item.link)) return;
+                displayedNews.add(item.link);
+
+                const div = document.createElement('div');
+                div.classList.add('news-item');
+                div.innerHTML = `
+                    ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.title}">` : ''}
+                    <div class="content">
+                        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+                        <p>${item.description}</p>
+                        <p><small><strong>${item.sourceName}</strong> - ${formatDate(item.pubDate)}</small></p>
+                    </div>
+                `;
+                fragment.appendChild(div);
+            });
+
+            newsContainer.appendChild(fragment);
+
+            loadMoreBtn.style.display = filteredItems.length > (currentPage + 1) * pageSize ? 'block' : 'none';
+            lastUpdateInfo.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        } catch (error) {
+            console.error('Error loading RSS feeds:', error);
+            newsContainer.innerHTML = '<p>Error loading news. Please try again later.</p>';
+        }
+    }
+
+    function handleSourceChange() {
+        selectedSource = sourceSelect.value;
+        currentPage = 0;
+        loadNews();
+    }
+
+    function handleSearchInput() {
+        searchQuery = searchInput.value.toLowerCase();
+        currentPage = 0;
+        loadNews();
+    }
+
+    function handleLoadMore() {
+        currentPage += 1;
+        loadNews(true);
+    }
+
+    // Load news on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadNews();
+        // Set an interval to refresh news every 5 minutes
+        setInterval(() => {
+            loadNews(true);
+        }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    });
+
+    sourceSelect.addEventListener('change', handleSourceChange);
+    searchInput.addEventListener('input', handleSearchInput);
+    loadMoreBtn.addEventListener('click', handleLoadMore);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 </body>
 </html>
