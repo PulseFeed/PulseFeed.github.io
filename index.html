@@ -386,7 +386,8 @@
             { url: 'https://www.politico.eu/rss', name: 'Politico Europe' },
             { url: 'https://feeds.washingtonpost.com/rss/world', name: 'The Washington Post' },
             { url: 'https://thehackernews.com/feeds/posts/default', name: 'The Hacker News' },
-            { url: 'https://feed.alternativeto.net/news/all/', name: 'Alternativeto' }
+            { url: 'https://feed.alternativeto.net/news/all/', name: 'Alternativeto' },
+             { url: 'https://www.reutersagency.com/feed/?post_type=reuters-best', name: 'Reuters' },
         ];
         const proxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
         let selectedSource = 'all';
@@ -474,7 +475,6 @@
                         </div>
                     `;
 
-                    // Если есть медиа (видео или изображение), добавить его
                     if (item.media) {
                         const mediaElement = createMediaElement(item.media);
                         div.insertBefore(mediaElement, div.firstChild);
@@ -507,7 +507,7 @@
             loadNews();
             setInterval(() => {
                 loadNews(true);
-            }, 5 * 60 * 1000);
+            }, 4 * 60 * 1000);
         });
         searchInput.addEventListener('input', handleSearchInput);
         loadMoreBtn.addEventListener('click', handleLoadMore);
